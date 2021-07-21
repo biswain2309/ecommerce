@@ -1,22 +1,13 @@
-FROM python:3.7-alpine
+FROM python:3.6
 
-MAINTAINER Indrani Biswas <ibiswas.github.io>
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+COPY . .
 
 EXPOSE 8000
-
-RUN apk add --no-cache jpeg-dev zlib-dev
-RUN apk add --no-cache --virtual .build-deps build-base linux-headers \
-    && pip install Pillow
-
-ADD . /ecommerce
-
-WORKDIR /ecommerce
-
-RUN pip install -r requirements.txt
-
-RUN python ecommerce/manage.py makemigrations
-
-RUN python ecommerce/manage.py migrate
-
-CMD ["python", "ecommerce/manage.py", "runserver", "0.0.0.0:8000"]
-
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
